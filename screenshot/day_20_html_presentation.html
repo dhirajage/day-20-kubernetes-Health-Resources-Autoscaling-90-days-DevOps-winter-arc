@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DevOps Winter Arc — Day 20 Health, Resources & Autoscaling Complete Presentation</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .slide {
+      width: 297mm;
+      height: 210mm;
+      page-break-after: always;
+      page-break-inside: avoid;
+      padding: 12mm 16mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #0b0f19;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* COVER POSTER STYLING (SLIDE 1) */
+    .slide-cover {
+      background: #dbeafe !important;
+      color: #0f172a !important;
+      border: 3px solid #3b82f6;
+      padding: 14mm 18mm;
+    }
+    .slide-cover .header { border-bottom: 2.5px solid #2563eb; margin-bottom: 10px; }
+    .slide-cover .header-banner { color: #1d4ed8; font-weight: 800; font-size: 13px; margin-bottom: 4px; }
+    .slide-cover .header h1 { color: #0f172a; font-weight: 900; font-size: 24px; }
+    .slide-cover .task-category { background-color: #1d4ed8; color: #ffffff; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+    .slide-cover .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .slide-cover .terminal-card { background: #090d16; border: 2px solid #1e3a8a; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
+    .slide-cover .terminal-header { background: #1e293b; padding: 6px 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1.5px solid #334155; }
+    .slide-cover .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .slide-cover .dot-red { background: #ef4444; } .slide-cover .dot-yellow { background: #f59e0b; } .slide-cover .dot-green { background: #10b981; }
+    .slide-cover .terminal-title { font-size: 11.5px; color: #f8fafc; font-family: monospace; font-weight: 700; }
+    .slide-cover .terminal-body { padding: 12px; font-family: monospace; font-size: 11.5px; color: #38bdf8; line-height: 1.5; }
+    .slide-cover .terminal-body .cmd { color: #ffffff; font-weight: 800; }
+    .slide-cover .terminal-body .comment { color: #94a3b8; font-weight: 600; }
+    .slide-cover .terminal-body .success { color: #4ade80; font-weight: 700; }
+    .slide-cover .mission-card { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .slide-cover .mission-title { font-size: 14px; font-weight: 900; color: #1e3a8a; border-bottom: 2px solid #2563eb; padding-bottom: 4px; text-transform: uppercase; margin-bottom: 8px; }
+    .slide-cover .mission-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .slide-cover .mission-list li { font-size: 12px; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .slide-cover .checkbox { color: #1d4ed8; font-weight: 900; font-size: 14px; }
+    .slide-cover .footer { border-top: 2.5px solid #2563eb; color: #1e3a8a; font-weight: 800; font-size: 11px; }
+
+    /* SLIDE CONTENT STYLING */
+    .header {
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-banner {
+      font-size: 11px;
+      font-weight: 600;
+      color: #38bdf8;
+      letter-spacing: 0.3px;
+      margin-bottom: 3px;
+    }
+    .header-main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .task-category {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      background-color: #1e293b;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .header h1 {
+      font-size: 18px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .content {
+      display: block;
+      width: 100%;
+    }
+    p, li {
+      font-size: 12.5px;
+      line-height: 1.35;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+    .img-container {
+      width: 100%;
+      text-align: center;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 4px;
+    }
+    .img-container img {
+      max-width: 100%;
+      max-height: 112mm;
+      height: auto;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+      margin: 0 auto;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #1e293b;
+      padding-top: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #64748b;
+    }
+    .footer .mentors {
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 11.5px;
+    }
+    th, td {
+      border: 1px solid #334155;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    td {
+      background-color: #0f172a;
+      color: #e2e8f0;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .summary-card {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .summary-card h2 {
+      font-size: 13.5px;
+      color: #38bdf8;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 3px;
+    }
+    .summary-card ul {
+      list-style-type: disc;
+      padding-left: 14px;
+    }
+    .summary-card li {
+      font-size: 11px;
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+
+    @media print {
+      html, body {
+        width: 297mm;
+        height: 210mm;
+        background-color: #0b0f19 !important;
+      }
+      .slide {
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SLIDE 1: COVER POSTER -->
+  <div class="slide slide-cover">
+    <div class="header">
+      <div class="header-banner">DEVOPS WINTER ARC — 90 DAYS CHALLENGE | LEARN • PRACTICE • BUILD • GROW</div>
+      <div class="header-main-row">
+        <h1>Day 20: Health, Resources & Autoscaling</h1>
+        <span class="task-category">COVER SLIDE / OVERVIEW</span>
+      </div>
+    </div>
+    <div class="content" style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+      <div class="grid-2col">
+        <div class="terminal-card">
+          <div class="terminal-header">
+            <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+            <span class="terminal-title">PS C:\Users\dhiru\day-20> kubectl</span>
+          </div>
+          <div class="terminal-body">
+            <span class="comment"># Self-Checking, Resource-Aware, & Auto-Scaling Workloads</span><br>
+            <span class="cmd">$ kubectl create namespace day20-health</span><br>
+            <span class="cmd">$ kubectl apply -f deployment.yaml</span><br>
+            <span class="cmd">$ kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=5</span><br>
+            <span class="cmd">$ kubectl run load-generator --image=busybox...</span><br>
+            <span class="success">Status: HPA Scaled Replicas Under Load & Probes Validated</span>
+          </div>
+        </div>
+        <div class="mission-card">
+          <div>
+            <div class="mission-title">MISSION ROADMAP (01 TO 08)</div>
+            <ul class="mission-list">
+              <li><span class="checkbox">✓</span> <strong>01:</strong> Cluster Metrics & Metrics-Server Check (Task A)</li>
+              <li><span class="checkbox">✓</span> <strong>02:</strong> Namespace & Resource-Aware Deployment (Task B)</li>
+              <li><span class="checkbox">✓</span> <strong>03:</strong> QoS Class & Resource Usage Inspection (Task C)</li>
+              <li><span class="checkbox">✓</span> <strong>04:</strong> Horizontal Pod Autoscaler (HPA) Setup (Task D)</li>
+              <li><span class="checkbox">✓</span> <strong>05:</strong> Load Generation & Dynamic Scaling (Task E-1)</li>
+              <li><span class="checkbox">✓</span> <strong>06:</strong> Live HPA & Replica Monitoring (Task E-2)</li>
+              <li><span class="checkbox">✓</span> <strong>07:</strong> Probe Failure Simulation & Events (Task F)</li>
+              <li><span class="checkbox">✓</span> <strong>08:</strong> Troubleshooting & Interview Mastery</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span class="mentors">DevOps Universe • @DevOps Jadeja</span>
+      <span>Slide 1 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: CORE CONCEPTS & ARCHITECTURE -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>01 / Core Concepts: Probes, Resources, QoS & HPA</h1>
+        <span class="task-category">Section 01 / Concepts</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Kubernetes Health & Scaling Mechanisms</h2>
+          <ul>
+            <li><strong>Startup Probe:</strong> Validates if the application has started; delays liveness and readiness checks until successful.</li>
+            <li><strong>Liveness Probe:</strong> Checks if the container is healthy; failure triggers a container restart based on restart policy.</li>
+            <li><strong>Readiness Probe:</strong> Determines if the Pod can accept traffic; failure removes the Pod from Service endpoints.</li>
+            <li><strong>Requests & Limits:</strong> Requests guarantee minimum compute resources for scheduling; limits cap resource consumption.</li>
+            <li><strong>Quality of Service (QoS):</strong> Classified into <code>Guaranteed</code>, <code>Burstable</code>, and <code>BestEffort</code> based on resource specs.</li>
+            <li><strong>Horizontal Pod Autoscaler (HPA):</strong> Automatically scales replica count dynamically based on observed CPU utilization metrics.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Essential kubectl Commands for Day 20</h2>
+          <ul>
+            <li><code>kubectl top nodes</code> — View node-level CPU and memory consumption</li>
+            <li><code>kubectl top pods -n day20-health</code> — Monitor active pod resource metrics</li>
+            <li><code>kubectl autoscale deployment...</code> — Configure HPA targets and replica bounds</li>
+            <li><code>kubectl get hpa -n day20-health -w</code> — Watch autoscaling adjustments live</li>
+            <li><code>kubectl run load-generator...</code> — Generate synthetic CPU load using Busybox</li>
+            <li><code>kubectl describe pod...</code> — Inspect container lifecycle events and probe statuses</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 2 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: TASK A - CLUSTER INSPECTION & METRICS-SERVER -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>02 / Cluster Inspection & Metrics-Server Verification (Task A)</h1>
+        <span class="task-category">Section 02 / Task A</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task A:</strong> Verified node readiness and validated <code>metrics-server</code> availability using <code>kubectl top nodes</code> to ensure resource utilization metrics were accessible for HPA.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-1.png" alt="Task A kubectl get nodes and top nodes output">
+        </div>
+        <div class="summary-card" style="display: flex; flex-direction: column; justify-content: center;">
+          <h2 style="color: #38bdf8;">Task A Execution Highlights</h2>
+          <ul>
+            <li>Executed <code>kubectl get nodes</code> confirming <code>docker-desktop</code> control-plane node is in <code>Ready</code> status.</li>
+            <li>Ran <code>kubectl top nodes</code> showing active node CPU (283m, 7%) and memory utilization (1400Mi, 37%).</li>
+            <li>Confirmed <code>metrics-server</code> is pre-configured and active in Docker Desktop Kubernetes, enabling pod and node metrics collection.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 3 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: TASK B - NAMESPACE & DEPLOYMENT SETUP -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>03 / Namespace Creation & Resource-Aware Deployment (Task B)</h1>
+        <span class="task-category">Section 03 / Task B</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task B:</strong> Created namespace <code>day20-health</code> and deployed <code>php-apache</code> featuring CPU/memory requests, limits, and startup, readiness, and liveness probes.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-2-1.png" alt="Task 2-1 Namespace Creation Output">
+        </div>
+        <div class="img-container">
+          <img src="task-2-2.png" alt="Task 2-2 Deployment Manifest YAML">
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 4 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: TASK B (CONT.) - ROLLOUT & POD DESCRIPTION -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>04 / Deployment Rollout & Pod Description Verification (Task B)</h1>
+        <span class="task-category">Section 04 / Task B (Cont.)</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task B (Cont.):</strong> Applied <code>deployment.yaml</code>, verified successful rollout, and inspected container resource allocations and probe configurations.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-2-3.png" alt="Task 2-3 Deployment Rollout and Pod Describe Output">
+        </div>
+        <div class="summary-card" style="display: flex; flex-direction: column; justify-content: center;">
+          <h2 style="color: #38bdf8;">Rollout & Configuration Review</h2>
+          <ul>
+            <li>Deployment successfully rolled out with 1 replica of <code>php-apache</code>.</li>
+            <li>CPU requests set to <code>200m</code> and limits to <code>500m</code>; memory requests to <code>64Mi</code> and limits to <code>128Mi</code>.</li>
+            <li>All three probes (Startup, Readiness, Liveness) correctly configured targeting HTTP GET on port 80.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 5 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: TASK C - QoS & RESOURCE USAGE INSPECTION -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>05 / QoS Class Identification & Resource Usage (Task C)</h1>
+        <span class="task-category">Section 05 / Task C</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task C:</strong> Inspected Pod QoS class via JSONPath and verified that the workload correctly evaluated to <code>Burstable</code> because requests and limits are unequal.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-3-1.png" alt="Task 3-1 QoS JSONPath Output">
+        </div>
+        <div class="img-container">
+          <img src="task-3-2.png" alt="Task 3-2 Pod Describe Showing QoS Class">
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 6 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: TASK D - CONFIGURING HPA -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>06 / Horizontal Pod Autoscaler (HPA) Configuration (Task D)</h1>
+        <span class="task-category">Section 06 / Task D</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task D:</strong> Configured HPA targeting deployment <code>php-apache</code> with a 50% CPU utilization threshold, setting minimum replicas to 1 and maximum to 5.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-4.png" alt="Task 4 HPA Creation and Describe Output">
+        </div>
+        <div class="summary-card" style="display: flex; flex-direction: column; justify-content: center;">
+          <h2 style="color: #38bdf8;">HPA Metrics & Status Summary</h2>
+          <ul>
+            <li>Autoscaler successfully attached to <code>Deployment/php-apache</code>.</li>
+            <li>Current CPU utilization reported at <strong>9% (19m) / 50%</strong> target.</li>
+            <li>HPA conditions confirmed active: <code>AbleToScale: True</code> and <code>ScalingActive: True</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 7 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: TASK E - LOAD GENERATION & HPA MONITORING -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>07 / Load Generation & Live HPA Metric Monitoring (Task E-1)</h1>
+        <span class="task-category">Section 07 / Task E-1</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task E-1:</strong> Executed synthetic load generation using Busybox and monitored live HPA target CPU percentage progression alongside deployment and pod metrics.</p>
+      <div class="img-container">
+        <img src="task-5.png" alt="Task E-1 Load Generator and Live HPA Watch Output">
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 8 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: TASK E (CONT.) - DYNAMIC SCALING BEHAVIOR -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>08 / Dynamic Scaling Behavior & Traffic Validation (Task E-2)</h1>
+        <span class="task-category">Section 08 / Task E-2</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task E-2:</strong> Analyzed autoscaling reconciliation cycles under sustained CPU load, verifying replica scaling bounds (min 1, max 5) and metric tracking.</p>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Load Generator Execution</h2>
+          <ul>
+            <li><strong>Command:</strong> <code>kubectl run load-generator --image=busybox:1.36 --restart=Never -it --rm -- /bin/sh -c "while true; do wget -q -O- http://php-apache.day20-health.svc.cluster.local; done"</code></li>
+            <li><strong>Observation:</strong> Continuous wget requests saturate the Apache server, driving CPU utilization toward autoscaling triggers.</li>
+            <li><strong>Scaling Behavior:</strong> HPA reconciles metrics and dynamically adjusts replica count within configured bounds.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Scale-Down & Recovery</h2>
+          <ul>
+            <li><strong>Post-Load:</strong> Upon terminating the load generator, CPU utilization drops back to baseline.</li>
+            <li><strong>Cooldown Period:</strong> HPA gradually scales replicas back down to minimum (1) after stabilization windows.</li>
+            <li><strong>Verification:</strong> <code>kubectl get hpa -n day20-health -w</code> confirms smooth scaling transitions.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 9 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: TASK F - PROBE FAILURE & EVENT DIAGNOSTICS -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>09 / Probe Failure Simulation & Event Diagnostics (Task F)</h1>
+        <span class="task-category">Section 10 / Task F</span>
+      </div>
+    </div>
+    <div class="content">
+      <p><strong>Task F:</strong> Simulated probe failures by modifying health check paths to nonexistent endpoints, inspecting Pod describe outputs and event logs to track unhealthy states.</p>
+      <div class="summary-grid">
+        <div class="img-container">
+          <img src="task-6-1.png" alt="Task F Pod Describe Showing Probe Failure Status">
+        </div>
+        <div class="img-container">
+          <img src="task-6-2.png" alt="Task F Cluster Events Log Showing Unhealthy Probes">
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 10 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: TROUBLESHOOTING MATRIX -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>10 / Troubleshooting & Diagnostics Matrix</h1>
+        <span class="task-category">Section 11 / Troubleshooting</span>
+      </div>
+    </div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th>Symptom / Error</th>
+            <th>What to Check</th>
+            <th>Resolution & Key Learning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>kubectl top fails</strong></td>
+            <td>Metrics-server Pods, logs, and node metrics</td>
+            <td>Ensure metrics-server is running properly in <code>kube-system</code> namespace. Check API registration and TLS settings if needed.</td>
+          </tr>
+          <tr>
+            <td><strong>HPA shows unknown</strong></td>
+            <td>Metrics-server & CPU requests</td>
+            <td>Verify metrics-server is active and ensure containers have explicit CPU requests defined so HPA can calculate percentage utilization.</td>
+          </tr>
+          <tr>
+            <td><strong>Replicas do not increase</strong></td>
+            <td>HPA current/target, load, events, maxReplicas</td>
+            <td>Verify load generator is running successfully and generating sufficient HTTP traffic to cross the 50% CPU threshold.</td>
+          </tr>
+          <tr>
+            <td><strong>OOMKilled</strong></td>
+            <td>Memory usage and limits</td>
+            <td>Container exceeded its memory limit. Inspect memory consumption and increase memory limit or optimize application memory footprint.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 11 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: DELIVERABLE CHECKLIST -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>11 / Deliverable & Architectural Review Checklist</h1>
+        <span class="task-category">Section 12 / Checklist</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Repository Structure (<code>day20-health-resources-autoscaling/</code>)</h2>
+          <ul>
+            <li><strong>deployment.yaml:</strong> Deployment spec with CPU/memory requests, limits, and Startup, Readiness, and Liveness probes.</li>
+            <li><strong>README.md:</strong> Comprehensive documentation covering architecture, probe types, QoS classes, HPA math, and troubleshooting.</li>
+            <li><strong>screenshots/ (tasks A to F):</strong> Full step-by-step terminal execution evidence including metrics, QoS, HPA scaling, and probe debugging.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">Engineering Quality Standards</h2>
+          <ul>
+            <li><strong>Self-Healing Probes:</strong> Validated container resilience and traffic eligibility control via probes.</li>
+            <li><strong>Resource Governance:</strong> Defined precise requests and limits, establishing Burstable QoS.</li>
+            <li><strong>Auto-Scaling Validation:</strong> Successfully demonstrated dynamic HPA replica scaling under load[cite: 1, 3, 4].</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 12 of 13</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: INTERVIEW READINESS Q&A -->
+  <div class="slide">
+    <div class="header">
+      <div class="header-banner">Day 20: Health, Resources & Autoscaling</div>
+      <div class="header-main-row">
+        <h1>12 / Interview Readiness & Architecture Q&A</h1>
+        <span class="task-category">Section 13 / Interview Q&A</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">1. Readiness vs Liveness Probes?</h2>
+          <ul>
+            <li>Readiness decides if a Pod receives traffic; liveness detects stuck containers and triggers restarts.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">2. Why use a Startup Probe?</h2>
+          <ul>
+            <li>It gives slow-starting applications time to initialize before liveness and readiness checks take over.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">3. Why does HPA need CPU requests?</h2>
+          <ul>
+            <li>CPU utilization is measured relative to requested CPU; without requests, utilization percentage is undefined.</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h2 style="color: #38bdf8;">4. Explain QoS Classes in K8s.</h2>
+          <ul>
+            <li><strong>Guaranteed:</strong> Equal requests/limits. <strong>Burstable:</strong> Requests set, unequal limits. <strong>BestEffort:</strong> No requests/limits.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Docker Desktop Kubernetes Environment (v1.36.1 / Windows)</span>
+      <span>Slide 13 of 13</span>
+    </div>
+  </div>
+
+</body>
+</html>
